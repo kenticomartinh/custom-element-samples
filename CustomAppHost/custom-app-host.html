@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Custom app</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+<iframe></iframe>
+<!-- Custom logic of the Custom element -->
+<script>
+    function loadCustomAppApi(callback) {
+        var parentUrl = new URL(document.referrer || 'https://app.kontent.ai');
+
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = parentUrl.origin + '/js-api/custom-app.js';
+        script.onload = callback;
+
+        document.body.appendChild(script);
+    }
+
+    function setup(url) {
+        if (!url) {
+            return;
+        }
+
+        var iframe = document.getElementsByTagName('iframe')[0];
+        iframe.src = url;
+    }
+
+    function initCustomApp() {
+        try {
+            CustomApp.init((app, context) => {
+                var projectId = context.projectId;
+                var url = app.config ? app.config.appUrl : "";
+                setup(url.replace('##PROJECTID##', projectId));
+            });
+        } catch (err) {
+            // Initialization with the Custom app API failed
+            // (page displayed outside of the Kentico Kontent UI)
+            console.error(err);
+        }
+    }
+
+    loadCustomAppApi(initCustomApp);
+</script>
+</body>
+</html>
